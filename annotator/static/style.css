@@ -22,24 +22,70 @@ body {
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.65rem 1rem;
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+}
+
+.topbar-leading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .topbar h1 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.mode-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.mode-nav__btn {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.mode-nav__btn:hover {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+.mode-nav__btn.is-active {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--text);
 }
 
 .topbar-actions {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .layout {
@@ -69,6 +115,41 @@ select#image-select {
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
+}
+
+.zoom-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.zoom-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 3rem;
+  text-align: right;
+}
+
+.zoom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zoom-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.zoom-bar input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 .status {
@@ -111,7 +192,6 @@ select#image-select {
 .stage {
   position: relative;
   display: inline-block;
-  max-width: 100%;
   line-height: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -121,9 +201,9 @@ select#image-select {
 
 .stage img {
   display: block;
-  max-width: 100%;
   height: auto;
   user-select: none;
+  vertical-align: top;
 }
 
 .stage canvas {
