@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>박스 크롭 어노테이터</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>박스 크롭</h1>
+      <div class="topbar-actions">
+        <button type="button" id="btn-clear" class="btn secondary">박스 전체 삭제</button>
+        <button type="button" id="btn-submit" class="btn primary">제출 · 크롭 저장</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <label for="image-select">이미지</label>
+        <select id="image-select"></select>
+        <p id="status" class="status"></p>
+        <ul id="hint" class="hint">
+          <li>드래그로 사각형을 그립니다.</li>
+          <li>박스를 클릭하면 선택(빨간 테두리)됩니다.</li>
+          <li><kbd>Del</kbd> 또는 「선택 삭제」로 선택 박스를 지웁니다.</li>
+          <li>저장 순서: 위→아래, 같은 줄에서는 왼쪽→오른쪽.</li>
+          <li>저장 경로: <code>source/staffs/{악보폴더}/{페이지stem}/staff_001.jpg</code> …</li>
+        </ul>
+        <button type="button" id="btn-delete-selected" class="btn secondary full">
+          선택 박스 삭제
+        </button>
+      </aside>
+
+      <section class="workspace">
+        <div id="stage" class="stage">
+          <img id="photo" alt="" draggable="false" />
+          <canvas id="overlay"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
