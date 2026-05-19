@@ -16,16 +16,42 @@
   const btnDelSel = document.getElementById("btn-delete-selected");
   const hintEl = document.getElementById("hint");
   const sourceFolderLabel = document.getElementById("source-folder-label");
-  const modeNav = document.querySelector(".mode-nav");
+  const strudelCode = document.getElementById("strudel-code");
+  const btnSaveTag = document.getElementById("btn-save-tag");
 
-  const MODES = new Set(["page_staff", "staff_measure", "measure_note"]);
-  /** @type {"page_staff" | "staff_measure" | "measure_note"} */
+  const CROP_MODES = new Set([
+    "page_staff",
+    "staff_measure",
+    "measure_note",
+    "function_in_page",
+    "function_in_staff",
+    "function_in_measure",
+    "function_in_note",
+  ]);
+
+  const TAG_MODES = new Set([
+    "code_of_page",
+    "code_of_staff",
+    "code_of_measure",
+    "code_of_note",
+  ]);
+
+  const MODES = new Set([...CROP_MODES, ...TAG_MODES]);
+  /** @type {string} */
   let currentMode = "page_staff";
 
   const MODE_SOURCE_FOLDER = {
     page_staff: "source/pages",
     staff_measure: "source/staffs",
     measure_note: "source/measures",
+    function_in_page: "source/pages",
+    function_in_staff: "source/staffs",
+    function_in_measure: "source/measures",
+    function_in_note: "source/notes",
+    code_of_page: "source/pages",
+    code_of_staff: "source/staffs",
+    code_of_measure: "source/measures",
+    code_of_note: "source/notes",
   };
 
   /** @type {Record<string, string[]>} */
@@ -50,7 +76,55 @@
       "각 마디 이미지를 열고, 필요한 노트 영역만 박스로 지정합니다.",
       "저장: <code>source/notes/{악보}/{페이지}/{staffstem}/{measurestem}/note_001.jpg</code> …",
     ],
+    function_in_page: [
+      "<strong>Functions in Page</strong> · 소스는 <code>source/pages</code>",
+      "페이지 이미지에서 function 영역을 박스로 지정합니다.",
+      "이미지: <code>source/functions/pages/{악보}/{페이지}/function_001.jpg</code> …",
+      "좌표: <code>data/position_data/functions_in_page/{악보}/{페이지}.json</code>",
+    ],
+    function_in_staff: [
+      "<strong>Functions in Staff</strong> · 소스는 <code>source/staffs</code>",
+      "staff 이미지에서 function 영역을 박스로 지정합니다.",
+      "이미지: <code>source/functions/pages/{악보}/{페이지}/{staff}/function_001.jpg</code> …",
+      "좌표: <code>data/position_data/functions_in_staff/…</code>",
+    ],
+    function_in_measure: [
+      "<strong>Functions in Measure</strong> · 소스는 <code>source/measures</code>",
+      "measure 이미지에서 function 영역을 박스로 지정합니다.",
+      "이미지: <code>source/functions/pages/…/{measure}/function_001.jpg</code> …",
+      "좌표: <code>data/position_data/functions_in_measure/…</code>",
+    ],
+    function_in_note: [
+      "<strong>Functions in Note</strong> · 소스는 <code>source/notes</code>",
+      "note 이미지에서 function 영역을 박스로 지정합니다.",
+      "이미지: <code>source/functions/pages/…/{note}/function_001.jpg</code> …",
+      "좌표: <code>data/position_data/function_in_note/…</code>",
+    ],
+    code_of_page: [
+      "<strong>Code of Page</strong> · 소스는 <code>source/pages</code>",
+      "페이지 이미지를 보며 Strudel Code를 입력합니다 (실행·검증 없음).",
+      "저장: <code>data/tag_data/pages/{악보}/{페이지}.json</code>",
+    ],
+    code_of_staff: [
+      "<strong>Code of Staff</strong> · 소스는 <code>source/staffs</code>",
+      "staff 이미지마다 Strudel Code를 입력·저장합니다.",
+      "저장: <code>data/tag_data/pages/{악보}/{페이지}/{staff}.json</code>",
+    ],
+    code_of_measure: [
+      "<strong>Code of Measure</strong> · 소스는 <code>source/measures</code>",
+      "measure 이미지마다 Strudel Code를 입력·저장합니다.",
+      "저장: <code>data/tag_data/pages/…/{measure}.json</code>",
+    ],
+    code_of_note: [
+      "<strong>Code of Note</strong> · 소스는 <code>source/notes</code>",
+      "note 이미지마다 Strudel Code를 입력·저장합니다.",
+      "저장: <code>data/tag_data/pages/…/{note}.json</code>",
+    ],
   };
+
+  function isTagMode() {
+    return TAG_MODES.has(currentMode);
+  }
 
   function renderHints() {
     const lines = HINT_LINES[currentMode] || HINT_LINES.page_staff;
@@ -63,11 +137,27 @@
   }
 
   function applyModeUi() {
+    document.body.classList.toggle("is-tag-mode", isTagMode());
     sourceFolderLabel.textContent = MODE_SOURCE_FOLDER[currentMode];
     renderHints();
-    modeNav.querySelectorAll(".mode-nav__btn").forEach((btn) => {
+    document.querySelectorAll(".mode-nav__btn").forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.mode === currentMode);
     });
+  }
+
+  async function loadTagForImage() {
+    const rel = select.value;
+    if (!rel || !isTagMode()) {
+      if (strudelCode) strudelCode.value = "";
+      return;
+    }
+    const q = new URLSearchParams({ mode: currentMode, relative_path: rel });
+    const res = await fetch(`/api/tag?${q}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.detail || `오류 ${res.status}`);
+    }
+    strudelCode.value = data.code ?? "";
   }
 
   function syncUrlMode() {
@@ -233,10 +323,17 @@
   }
 
   photo.addEventListener("load", () => {
-    boxes = [];
-    selectedIndex = null;
     syncZoomUi();
     layoutImage(true);
+    if (isTagMode()) {
+      loadTagForImage()
+        .then(() => setStatus("Strudel Code를 입력한 뒤 「코드 저장」을 누르세요."))
+        .catch((e) => setStatus(String(e), "err"));
+      return;
+    }
+    boxes = [];
+    selectedIndex = null;
+    redraw();
     setStatus("이미지 준비됨. 드래그로 박스를 그리세요.");
   });
 
@@ -283,7 +380,7 @@
   });
 
   canvas.addEventListener("mousedown", (ev) => {
-    if (!photo.src || !photo.naturalWidth) return;
+    if (isTagMode() || !photo.src || !photo.naturalWidth) return;
     const { x, y } = canvasCoords(ev);
     const hit = hitTest(x, y);
     if (hit !== null && !ev.shiftKey) {
@@ -329,6 +426,7 @@
   });
 
   document.addEventListener("keydown", (ev) => {
+    if (isTagMode()) return;
     if (ev.key === "Delete" || ev.key === "Backspace") {
       if (selectedIndex !== null && boxes[selectedIndex]) {
         boxes.splice(selectedIndex, 1);
@@ -353,6 +451,37 @@
     selectedIndex = null;
     redraw();
     setStatus("박스를 모두 지웠습니다.");
+  });
+
+  btnSaveTag.addEventListener("click", async () => {
+    const rel = select.value;
+    if (!rel) {
+      setStatus("이미지를 선택하세요.", "err");
+      return;
+    }
+    btnSaveTag.disabled = true;
+    setStatus("저장 중…");
+    try {
+      const res = await fetch("/api/tag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: currentMode,
+          relative_path: rel,
+          code: strudelCode.value,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus(data.detail || `오류 ${res.status}`, "err");
+        return;
+      }
+      setStatus(`코드 저장 완료 → ${data.tag_path}`, "ok");
+    } catch (e) {
+      setStatus(String(e), "err");
+    } finally {
+      btnSaveTag.disabled = false;
+    }
   });
 
   btnSubmit.addEventListener("click", async () => {
@@ -411,6 +540,7 @@
     const images = data.images || [];
     if (!images.length) {
       photo.removeAttribute("src");
+      if (strudelCode) strudelCode.value = "";
       boxes = [];
       selectedIndex = null;
       redraw();
@@ -432,6 +562,7 @@
     const v = select.value;
     if (!v) {
       photo.removeAttribute("src");
+      if (strudelCode) strudelCode.value = "";
       boxes = [];
       selectedIndex = null;
       redraw();
@@ -440,11 +571,13 @@
     photo.src = imageApiUrl(v);
   });
 
-  modeNav.addEventListener("click", (ev) => {
-    const btn = ev.target.closest("[data-mode]");
-    if (!(btn instanceof HTMLElement) || btn.tagName !== "BUTTON") return;
-    const m = btn.dataset.mode;
-    setMode(m).catch((e) => setStatus(String(e), "err"));
+  document.querySelectorAll(".mode-nav").forEach((nav) => {
+    nav.addEventListener("click", (ev) => {
+      const btn = ev.target.closest("[data-mode]");
+      if (!(btn instanceof HTMLElement) || btn.tagName !== "BUTTON") return;
+      const m = btn.dataset.mode;
+      setMode(m).catch((e) => setStatus(String(e), "err"));
+    });
   });
 
   (function bootstrap() {

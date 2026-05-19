@@ -82,6 +82,48 @@ body {
   color: var(--text);
 }
 
+.mode-nav--tag {
+  padding-top: 0.15rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.15rem;
+  width: 100%;
+}
+
+body:not(.is-tag-mode) .tag-only {
+  display: none !important;
+}
+
+body.is-tag-mode .crop-only {
+  display: none !important;
+}
+
+body.is-tag-mode #overlay {
+  display: none;
+}
+
+.tag-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.strudel-code {
+  width: 100%;
+  flex: 1;
+  min-height: 12rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
 .topbar-actions {
   display: flex;
   gap: 0.5rem;

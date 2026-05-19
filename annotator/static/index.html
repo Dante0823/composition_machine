@@ -20,11 +20,40 @@
           <button type="button" class="mode-nav__btn" data-mode="measure_note">
             Measure → Note
           </button>
+          <button type="button" class="mode-nav__btn" data-mode="function_in_page">
+            Functions in Page
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="function_in_staff">
+            Functions in Staff
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="function_in_measure">
+            Functions in Measure
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="function_in_note">
+            Functions in Note
+          </button>
+        </nav>
+        <nav class="mode-nav mode-nav--tag" aria-label="Strudel Code">
+          <button type="button" class="mode-nav__btn" data-mode="code_of_page">
+            Code of Page
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="code_of_staff">
+            Code of Staff
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="code_of_measure">
+            Code of Measure
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="code_of_note">
+            Code of Note
+          </button>
         </nav>
       </div>
-      <div class="topbar-actions">
+      <div class="topbar-actions crop-only">
         <button type="button" id="btn-clear" class="btn secondary">박스 전체 삭제</button>
         <button type="button" id="btn-submit" class="btn primary">제출 · 크롭 저장</button>
+      </div>
+      <div class="topbar-actions tag-only">
+        <button type="button" id="btn-save-tag" class="btn primary">코드 저장</button>
       </div>
     </header>
 
@@ -32,6 +61,16 @@
       <aside class="sidebar">
         <label for="image-select">이미지 (<span id="source-folder-label">source/pages</span>)</label>
         <select id="image-select"></select>
+        <div class="tag-panel tag-only">
+          <label for="strudel-code">Strudel Code</label>
+          <textarea
+            id="strudel-code"
+            class="strudel-code"
+            rows="14"
+            spellcheck="false"
+            placeholder="Strudel 코드를 입력하세요…"
+          ></textarea>
+        </div>
         <label for="zoom-slider" class="zoom-label-row">
           표시 크기 <span id="zoom-value" class="zoom-value">100%</span>
         </label>
@@ -47,7 +86,7 @@
         </div>
         <p id="status" class="status"></p>
         <ul id="hint" class="hint"></ul>
-        <button type="button" id="btn-delete-selected" class="btn secondary full">
+        <button type="button" id="btn-delete-selected" class="btn secondary full crop-only">
           선택 박스 삭제
         </button>
       </aside>

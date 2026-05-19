@@ -1,0 +1,16 @@
+{
+    "sheet_music": "sheet_music_01",
+    "staff": "staff_001",
+    "functions": [
+        {
+            "index": 1,
+            "name": "function_001",
+            "position": {
+                "top": 1,
+                "left": 1,
+                "width": 1,
+                "height": 1
+            }
+        }
+    ]
+}
