@@ -25,30 +25,36 @@ body {
   position: sticky;
   top: 0;
   z-index: 200;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem 1rem;
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
 
-.topbar-leading {
+.topbar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.topbar-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1rem;
-  min-width: 0;
-  flex: 1;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
 }
 
-.topbar h1 {
+.topbar-head h1 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.topbar-actions-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .mode-nav {
@@ -56,6 +62,11 @@ body {
   flex-wrap: wrap;
   gap: 0.35rem;
   align-items: center;
+}
+
+.mode-nav--section {
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
 }
 
 .mode-nav__btn {
@@ -80,13 +91,6 @@ body {
   border-color: var(--accent);
   background: rgba(59, 130, 246, 0.12);
   color: var(--text);
-}
-
-.mode-nav--tag {
-  padding-top: 0.15rem;
-  border-top: 1px solid var(--border);
-  margin-top: 0.15rem;
-  width: 100%;
 }
 
 body:not(.is-tag-mode) .tag-only {
@@ -133,7 +137,7 @@ body.is-tag-mode #overlay {
 .layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 120px);
 }
 
 .sidebar {

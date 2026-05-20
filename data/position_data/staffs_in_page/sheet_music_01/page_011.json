@@ -1,0 +1,66 @@
+{
+    "sheet_music": "sheet_music_01",
+    "page": "page_011",
+    "staffs": [
+        {
+            "index": 1,
+            "name": "staff_001",
+            "position": {
+                "top": 164,
+                "left": 117,
+                "width": 2332,
+                "height": 577
+            }
+        },
+        {
+            "index": 2,
+            "name": "staff_002",
+            "position": {
+                "top": 752,
+                "left": 91,
+                "width": 2358,
+                "height": 531
+            }
+        },
+        {
+            "index": 3,
+            "name": "staff_003",
+            "position": {
+                "top": 1295,
+                "left": 97,
+                "width": 2364,
+                "height": 548
+            }
+        },
+        {
+            "index": 4,
+            "name": "staff_004",
+            "position": {
+                "top": 1848,
+                "left": 80,
+                "width": 2352,
+                "height": 545
+            }
+        },
+        {
+            "index": 5,
+            "name": "staff_005",
+            "position": {
+                "top": 2345,
+                "left": 80,
+                "width": 2361,
+                "height": 571
+            }
+        },
+        {
+            "index": 6,
+            "name": "staff_006",
+            "position": {
+                "top": 2907,
+                "left": 74,
+                "width": 2375,
+                "height": 502
+            }
+        }
+    ]
+}

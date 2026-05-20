@@ -20,6 +20,10 @@
 - code_of_staff: source/staffs → data/tag_data/pages/{악보}/{페이지}/{staff}.json
 - code_of_measure: source/measures → data/tag_data/pages/{악보}/{페이지}/{staff}/{measure}.json
 - code_of_note: source/notes → data/tag_data/pages/{악보}/{페이지}/{staff}/{measure}/{note}.json
+- tag_of_page_function: source/functions/pages → data/tag_data/functions/pages/{악보}/{페이지}/{function}.json
+- tag_of_staff_function: source/functions/pages → data/tag_data/functions/pages/{악보}/{페이지}/{staff}/{function}.json
+- tag_of_measure_function: source/functions/pages → data/tag_data/functions/pages/…/{measure}/{function}.json
+- tag_of_note_function: source/functions/pages → data/tag_data/functions/pages/…/{note}/{function}.json
 """
 
 from __future__ import annotations
@@ -51,10 +55,36 @@ FUNCTIONS_IN_STAFF_ROOT = POSITION_DATA_ROOT / "functions_in_staff"
 FUNCTIONS_IN_MEASURE_ROOT = POSITION_DATA_ROOT / "functions_in_measure"
 FUNCTION_IN_NOTE_ROOT = POSITION_DATA_ROOT / "function_in_note"
 TAG_DATA_PAGES_ROOT = PROJECT_ROOT / "data" / "tag_data" / "pages"
+TAG_DATA_FUNCTIONS_PAGES_ROOT = PROJECT_ROOT / "data" / "tag_data" / "functions" / "pages"
 
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}
 
-TagMode = Literal["code_of_page", "code_of_staff", "code_of_measure", "code_of_note"]
+TagMode = Literal[
+    "code_of_page",
+    "code_of_staff",
+    "code_of_measure",
+    "code_of_note",
+    "tag_of_page_function",
+    "tag_of_staff_function",
+    "tag_of_measure_function",
+    "tag_of_note_function",
+]
+
+FUNCTION_TAG_MODES: frozenset[str] = frozenset(
+    {
+        "tag_of_page_function",
+        "tag_of_staff_function",
+        "tag_of_measure_function",
+        "tag_of_note_function",
+    }
+)
+
+FUNCTION_TAG_DEPTH: dict[str, int] = {
+    "tag_of_page_function": 3,
+    "tag_of_staff_function": 4,
+    "tag_of_measure_function": 5,
+    "tag_of_note_function": 6,
+}
 
 AnnotMode = Literal[
     "page_staff",
@@ -77,6 +107,10 @@ MODE_CODE_OF_PAGE: TagMode = "code_of_page"
 MODE_CODE_OF_STAFF: TagMode = "code_of_staff"
 MODE_CODE_OF_MEASURE: TagMode = "code_of_measure"
 MODE_CODE_OF_NOTE: TagMode = "code_of_note"
+MODE_TAG_PAGE_FUNCTION: TagMode = "tag_of_page_function"
+MODE_TAG_STAFF_FUNCTION: TagMode = "tag_of_staff_function"
+MODE_TAG_MEASURE_FUNCTION: TagMode = "tag_of_measure_function"
+MODE_TAG_NOTE_FUNCTION: TagMode = "tag_of_note_function"
 
 AppMode = AnnotMode | TagMode
 
@@ -109,9 +143,16 @@ class TagBody(BaseModel):
     mode: TagMode
     relative_path: str
     code: str = ""
+    tag: str = ""
+
+
+def _is_function_tag_mode(mode: AppMode) -> bool:
+    return mode in FUNCTION_TAG_MODES
 
 
 def _source_root(mode: AppMode) -> Path:
+    if mode in FUNCTION_TAG_MODES:
+        return FUNCTIONS_PAGES_ROOT
     if mode in (MODE_PAGE_STAFF, MODE_FUNCTION_IN_PAGE, MODE_CODE_OF_PAGE):
         return PAGES_ROOT
     if mode in (MODE_STAFF_MEASURE, MODE_FUNCTION_IN_STAFF, MODE_CODE_OF_STAFF):
@@ -179,7 +220,50 @@ def _write_crop_metadata(path: Path, data: dict[str, Any]) -> str:
     return _write_json_file(path, data)
 
 
+def _function_tag_rel_parts(mode: TagMode, src: Path) -> tuple[Path, tuple[str, ...]]:
+    rel = src.relative_to(FUNCTIONS_PAGES_ROOT)
+    expected = FUNCTION_TAG_DEPTH[mode]
+    if len(rel.parts) != expected:
+        raise HTTPException(
+            status_code=400,
+            detail=f"function 이미지 경로는 {expected}단계({expected - 1}개 폴더 + 파일)여야 합니다.",
+        )
+    return rel, rel.parts
+
+
+def _function_tag_json_path(mode: TagMode, src: Path) -> Path:
+    rel, _ = _function_tag_rel_parts(mode, src)
+    return TAG_DATA_FUNCTIONS_PAGES_ROOT / rel.parent / f"{src.stem}.json"
+
+
+def _build_function_tag_payload(mode: TagMode, src: Path, tag: str) -> dict[str, Any]:
+    _, parts = _function_tag_rel_parts(mode, src)
+    function = src.stem
+    payload: dict[str, Any] = {"sheet_music": parts[0], "function": function, "tag": tag}
+
+    if mode == MODE_TAG_PAGE_FUNCTION:
+        payload["page"] = parts[1]
+        return payload
+
+    payload["page"] = parts[1]
+    if mode == MODE_TAG_STAFF_FUNCTION:
+        payload["staff"] = parts[2]
+        return payload
+
+    payload["staff"] = parts[2]
+    if mode == MODE_TAG_MEASURE_FUNCTION:
+        payload["measure"] = parts[3]
+        return payload
+
+    payload["measure"] = parts[3]
+    payload["note"] = parts[4]
+    return payload
+
+
 def _tag_json_path(mode: TagMode, src: Path) -> Path:
+    if _is_function_tag_mode(mode):
+        return _function_tag_json_path(mode, src)
+
     if mode == MODE_CODE_OF_PAGE:
         sheet_music = src.parent.name
         page = src.stem
@@ -240,7 +324,7 @@ def _build_tag_payload(mode: TagMode, src: Path, code: str) -> dict[str, Any]:
     return payload
 
 
-def _read_tag_code(path: Path) -> str:
+def _read_tag_field(path: Path, field: str) -> str:
     if not path.is_file():
         return ""
     try:
@@ -248,9 +332,23 @@ def _read_tag_code(path: Path) -> str:
             data = json.load(f)
     except (OSError, json.JSONDecodeError):
         return ""
-    if isinstance(data, dict) and isinstance(data.get("code"), str):
-        return data["code"]
+    if isinstance(data, dict) and isinstance(data.get(field), str):
+        return data[field]
     return ""
+
+
+def _list_function_tag_images(mode: TagMode) -> list[str]:
+    if not FUNCTIONS_PAGES_ROOT.is_dir():
+        return []
+    depth = FUNCTION_TAG_DEPTH[mode]
+    out: list[str] = []
+    for p in sorted(FUNCTIONS_PAGES_ROOT.rglob("*")):
+        if not p.is_file() or p.suffix.lower() not in ALLOWED_EXT:
+            continue
+        rel = p.relative_to(FUNCTIONS_PAGES_ROOT)
+        if len(rel.parts) == depth:
+            out.append(rel.as_posix())
+    return out
 
 
 def _list_images_under(root: Path) -> list[str]:
@@ -265,6 +363,8 @@ def _list_images_under(root: Path) -> list[str]:
 
 @app.get("/api/images")
 def list_images(mode: AppMode = MODE_PAGE_STAFF):
+    if _is_function_tag_mode(mode):
+        return {"images": _list_function_tag_images(mode), "mode": mode}
     root = _source_root(mode)
     return {"images": _list_images_under(root), "mode": mode}
 
@@ -499,10 +599,12 @@ _SUBMIT_HANDLERS: dict[AnnotMode, Any] = {
 def get_tag(mode: TagMode, relative_path: str):
     src = _resolve_source(mode, relative_path)
     tag_path = _tag_json_path(mode, src)
+    field = "tag" if _is_function_tag_mode(mode) else "code"
     return {
         "ok": True,
         "mode": mode,
-        "code": _read_tag_code(tag_path),
+        "field": field,
+        field: _read_tag_field(tag_path, field),
         "tag_path": tag_path.relative_to(PROJECT_ROOT).as_posix(),
     }
 
@@ -511,7 +613,10 @@ def get_tag(mode: TagMode, relative_path: str):
 def save_tag(body: TagBody):
     src = _resolve_source(body.mode, body.relative_path)
     tag_path = _tag_json_path(body.mode, src)
-    payload = _build_tag_payload(body.mode, src, body.code)
+    if _is_function_tag_mode(body.mode):
+        payload = _build_function_tag_payload(body.mode, src, body.tag)
+    else:
+        payload = _build_tag_payload(body.mode, src, body.code)
     written = _write_json_file(tag_path, payload)
     return {"ok": True, "mode": body.mode, "tag_path": written}
 

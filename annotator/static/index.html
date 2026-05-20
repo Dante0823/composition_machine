@@ -4,12 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>악보 크롭 · 어노테이터</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/style.css?v=3" />
   </head>
   <body>
     <header class="topbar">
-      <div class="topbar-leading">
-        <h1>악보 크롭</h1>
+      <div class="topbar-inner">
+        <div class="topbar-head">
+          <h1>악보 크롭</h1>
+          <div class="topbar-actions-group">
+            <div class="topbar-actions crop-only">
+              <button type="button" id="btn-clear" class="btn secondary">박스 전체 삭제</button>
+              <button type="button" id="btn-submit" class="btn primary">제출 · 크롭 저장</button>
+            </div>
+            <div class="topbar-actions tag-only">
+              <button type="button" id="btn-save-tag" class="btn primary">코드 저장</button>
+            </div>
+          </div>
+        </div>
         <nav class="mode-nav" aria-label="작업 단계">
           <button type="button" class="mode-nav__btn is-active" data-mode="page_staff">
             Page → Staff
@@ -33,7 +44,7 @@
             Functions in Note
           </button>
         </nav>
-        <nav class="mode-nav mode-nav--tag" aria-label="Strudel Code">
+        <nav class="mode-nav mode-nav--section" aria-label="Strudel Code">
           <button type="button" class="mode-nav__btn" data-mode="code_of_page">
             Code of Page
           </button>
@@ -47,13 +58,20 @@
             Code of Note
           </button>
         </nav>
-      </div>
-      <div class="topbar-actions crop-only">
-        <button type="button" id="btn-clear" class="btn secondary">박스 전체 삭제</button>
-        <button type="button" id="btn-submit" class="btn primary">제출 · 크롭 저장</button>
-      </div>
-      <div class="topbar-actions tag-only">
-        <button type="button" id="btn-save-tag" class="btn primary">코드 저장</button>
+        <nav class="mode-nav mode-nav--section" aria-label="Function Tag">
+          <button type="button" class="mode-nav__btn" data-mode="tag_of_page_function">
+            Tag of Page Function
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="tag_of_staff_function">
+            Tag of Staff Function
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="tag_of_measure_function">
+            Tag of Measure Function
+          </button>
+          <button type="button" class="mode-nav__btn" data-mode="tag_of_note_function">
+            Tag of Note Function
+          </button>
+        </nav>
       </div>
     </header>
 
@@ -62,7 +80,7 @@
         <label for="image-select">이미지 (<span id="source-folder-label">source/pages</span>)</label>
         <select id="image-select"></select>
         <div class="tag-panel tag-only">
-          <label for="strudel-code">Strudel Code</label>
+          <label for="strudel-code" id="tag-input-label">Strudel Code</label>
           <textarea
             id="strudel-code"
             class="strudel-code"
@@ -99,6 +117,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=3"></script>
   </body>
 </html>

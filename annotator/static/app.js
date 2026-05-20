@@ -18,6 +18,7 @@
   const sourceFolderLabel = document.getElementById("source-folder-label");
   const strudelCode = document.getElementById("strudel-code");
   const btnSaveTag = document.getElementById("btn-save-tag");
+  const tagInputLabel = document.getElementById("tag-input-label");
 
   const CROP_MODES = new Set([
     "page_staff",
@@ -29,12 +30,21 @@
     "function_in_note",
   ]);
 
-  const TAG_MODES = new Set([
+  const CODE_TAG_MODES = new Set([
     "code_of_page",
     "code_of_staff",
     "code_of_measure",
     "code_of_note",
   ]);
+
+  const FUNCTION_TAG_MODES = new Set([
+    "tag_of_page_function",
+    "tag_of_staff_function",
+    "tag_of_measure_function",
+    "tag_of_note_function",
+  ]);
+
+  const TAG_MODES = new Set([...CODE_TAG_MODES, ...FUNCTION_TAG_MODES]);
 
   const MODES = new Set([...CROP_MODES, ...TAG_MODES]);
   /** @type {string} */
@@ -52,6 +62,69 @@
     code_of_staff: "source/staffs",
     code_of_measure: "source/measures",
     code_of_note: "source/notes",
+    tag_of_page_function: "source/functions/pages",
+    tag_of_staff_function: "source/functions/pages",
+    tag_of_measure_function: "source/functions/pages",
+    tag_of_note_function: "source/functions/pages",
+  };
+
+  const TAG_INPUT_UI = {
+    code_of_page: {
+      label: "Strudel Code",
+      placeholder: "Strudel 코드를 입력하세요…",
+      saveLabel: "코드 저장",
+      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      savedStatus: "코드 저장 완료",
+    },
+    code_of_staff: {
+      label: "Strudel Code",
+      placeholder: "Strudel 코드를 입력하세요…",
+      saveLabel: "코드 저장",
+      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      savedStatus: "코드 저장 완료",
+    },
+    code_of_measure: {
+      label: "Strudel Code",
+      placeholder: "Strudel 코드를 입력하세요…",
+      saveLabel: "코드 저장",
+      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      savedStatus: "코드 저장 완료",
+    },
+    code_of_note: {
+      label: "Strudel Code",
+      placeholder: "Strudel 코드를 입력하세요…",
+      saveLabel: "코드 저장",
+      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      savedStatus: "코드 저장 완료",
+    },
+    tag_of_page_function: {
+      label: "Tag",
+      placeholder: "태그를 입력하세요…",
+      saveLabel: "태그 저장",
+      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      savedStatus: "태그 저장 완료",
+    },
+    tag_of_staff_function: {
+      label: "Tag",
+      placeholder: "태그를 입력하세요…",
+      saveLabel: "태그 저장",
+      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      savedStatus: "태그 저장 완료",
+    },
+    tag_of_measure_function: {
+      label: "Tag",
+      placeholder: "태그를 입력하세요…",
+      saveLabel: "태그 저장",
+      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      savedStatus: "태그 저장 완료",
+    },
+    tag_of_note_function: {
+      label: "Tag",
+      placeholder: "태그를 입력하세요…",
+      saveLabel: "태그 저장",
+      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      savedStatus: "태그 저장 완료",
+    },
   };
 
   /** @type {Record<string, string[]>} */
@@ -120,7 +193,35 @@
       "note 이미지마다 Strudel Code를 입력·저장합니다.",
       "저장: <code>data/tag_data/pages/…/{note}.json</code>",
     ],
+    tag_of_page_function: [
+      "<strong>Tag of Page Function</strong> · 소스는 <code>source/functions/pages</code>",
+      "page function 이미지마다 태그를 텍스트로 입력합니다.",
+      "저장: <code>data/tag_data/functions/pages/{악보}/{페이지}/{function}.json</code>",
+    ],
+    tag_of_staff_function: [
+      "<strong>Tag of Staff Function</strong> · 소스는 <code>source/functions/pages</code>",
+      "staff function 이미지마다 태그를 입력합니다.",
+      "저장: <code>data/tag_data/functions/pages/…/{staff}/{function}.json</code>",
+    ],
+    tag_of_measure_function: [
+      "<strong>Tag of Measure Function</strong> · 소스는 <code>source/functions/pages</code>",
+      "measure function 이미지마다 태그를 입력합니다.",
+      "저장: <code>data/tag_data/functions/pages/…/{measure}/{function}.json</code>",
+    ],
+    tag_of_note_function: [
+      "<strong>Tag of Note Function</strong> · 소스는 <code>source/functions/pages</code>",
+      "note function 이미지마다 태그를 입력합니다.",
+      "저장: <code>data/tag_data/functions/pages/…/{note}/{function}.json</code>",
+    ],
   };
+
+  function isFunctionTagMode() {
+    return FUNCTION_TAG_MODES.has(currentMode);
+  }
+
+  function tagInputUi() {
+    return TAG_INPUT_UI[currentMode] || TAG_INPUT_UI.code_of_page;
+  }
 
   function isTagMode() {
     return TAG_MODES.has(currentMode);
@@ -139,6 +240,12 @@
   function applyModeUi() {
     document.body.classList.toggle("is-tag-mode", isTagMode());
     sourceFolderLabel.textContent = MODE_SOURCE_FOLDER[currentMode];
+    const ui = tagInputUi();
+    if (tagInputLabel) tagInputLabel.textContent = ui.label;
+    if (strudelCode) {
+      strudelCode.placeholder = ui.placeholder;
+    }
+    if (btnSaveTag) btnSaveTag.textContent = ui.saveLabel;
     renderHints();
     document.querySelectorAll(".mode-nav__btn").forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.mode === currentMode);
@@ -157,7 +264,8 @@
     if (!res.ok) {
       throw new Error(data.detail || `오류 ${res.status}`);
     }
-    strudelCode.value = data.code ?? "";
+    const field = data.field || (isFunctionTagMode() ? "tag" : "code");
+    strudelCode.value = data[field] ?? "";
   }
 
   function syncUrlMode() {
@@ -172,12 +280,25 @@
   }
 
   function setMode(mode) {
-    if (!MODES.has(mode)) return Promise.resolve();
+    if (!MODES.has(mode)) {
+      setStatus(`알 수 없는 mode: ${mode}`, "err");
+      return Promise.resolve();
+    }
     currentMode = mode;
     applyModeUi();
     syncUrlMode();
-    return loadImageList();
+    return loadImageList().catch((e) => {
+      setStatus(String(e), "err");
+    });
   }
+
+  document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".mode-nav__btn[data-mode]");
+    if (!btn) return;
+    const mode = btn.getAttribute("data-mode");
+    if (!mode) return;
+    setMode(mode);
+  });
 
   /** @type {{ x: number, y: number, w: number, h: number }[]} */
   let boxes = [];
@@ -327,7 +448,7 @@
     layoutImage(true);
     if (isTagMode()) {
       loadTagForImage()
-        .then(() => setStatus("Strudel Code를 입력한 뒤 「코드 저장」을 누르세요."))
+        .then(() => setStatus(tagInputUi().readyStatus))
         .catch((e) => setStatus(String(e), "err"));
       return;
     }
@@ -453,7 +574,7 @@
     setStatus("박스를 모두 지웠습니다.");
   });
 
-  btnSaveTag.addEventListener("click", async () => {
+  btnSaveTag?.addEventListener("click", async () => {
     const rel = select.value;
     if (!rel) {
       setStatus("이미지를 선택하세요.", "err");
@@ -462,21 +583,26 @@
     btnSaveTag.disabled = true;
     setStatus("저장 중…");
     try {
+      const body = {
+        mode: currentMode,
+        relative_path: rel,
+      };
+      if (isFunctionTagMode()) {
+        body.tag = strudelCode.value;
+      } else {
+        body.code = strudelCode.value;
+      }
       const res = await fetch("/api/tag", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: currentMode,
-          relative_path: rel,
-          code: strudelCode.value,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setStatus(data.detail || `오류 ${res.status}`, "err");
         return;
       }
-      setStatus(`코드 저장 완료 → ${data.tag_path}`, "ok");
+      setStatus(`${tagInputUi().savedStatus} → ${data.tag_path}`, "ok");
     } catch (e) {
       setStatus(String(e), "err");
     } finally {
@@ -571,18 +697,9 @@
     photo.src = imageApiUrl(v);
   });
 
-  document.querySelectorAll(".mode-nav").forEach((nav) => {
-    nav.addEventListener("click", (ev) => {
-      const btn = ev.target.closest("[data-mode]");
-      if (!(btn instanceof HTMLElement) || btn.tagName !== "BUTTON") return;
-      const m = btn.dataset.mode;
-      setMode(m).catch((e) => setStatus(String(e), "err"));
-    });
-  });
-
   (function bootstrap() {
     const fromUrl = new URLSearchParams(location.search).get("mode");
-    if (MODES.has(fromUrl)) currentMode = fromUrl;
+    if (fromUrl && MODES.has(fromUrl)) currentMode = fromUrl;
     applyModeUi();
     syncUrlMode();
     loadImageList().catch((e) => setStatus(String(e), "err"));
