@@ -1,0 +1,86 @@
+{
+    "sheet_music": "sheet_music_01",
+    "measure": "measure_004",
+    "notes": [
+        {
+            "index": 1,
+            "name": "note_001",
+            "position": {
+                "top": 2,
+                "left": 249,
+                "width": 44,
+                "height": 129
+            }
+        },
+        {
+            "index": 2,
+            "name": "note_002",
+            "position": {
+                "top": 9,
+                "left": 20,
+                "width": 55,
+                "height": 118
+            }
+        },
+        {
+            "index": 3,
+            "name": "note_003",
+            "position": {
+                "top": 131,
+                "left": 15,
+                "width": 140,
+                "height": 193
+            }
+        },
+        {
+            "index": 4,
+            "name": "note_004",
+            "position": {
+                "top": 145,
+                "left": 240,
+                "width": 153,
+                "height": 174
+            }
+        },
+        {
+            "index": 5,
+            "name": "note_005",
+            "position": {
+                "top": 155,
+                "left": 135,
+                "width": 124,
+                "height": 168
+            }
+        },
+        {
+            "index": 6,
+            "name": "note_006",
+            "position": {
+                "top": 163,
+                "left": 369,
+                "width": 113,
+                "height": 162
+            }
+        },
+        {
+            "index": 7,
+            "name": "note_007",
+            "position": {
+                "top": 343,
+                "left": 3,
+                "width": 68,
+                "height": 149
+            }
+        },
+        {
+            "index": 8,
+            "name": "note_008",
+            "position": {
+                "top": 343,
+                "left": 221,
+                "width": 74,
+                "height": 165
+            }
+        }
+    ]
+}

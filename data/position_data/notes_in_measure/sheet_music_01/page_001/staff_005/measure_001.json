@@ -1,0 +1,106 @@
+{
+    "sheet_music": "sheet_music_01",
+    "measure": "measure_001",
+    "notes": [
+        {
+            "index": 1,
+            "name": "note_001",
+            "position": {
+                "top": 45,
+                "left": 214,
+                "width": 94,
+                "height": 108
+            }
+        },
+        {
+            "index": 2,
+            "name": "note_002",
+            "position": {
+                "top": 50,
+                "left": 574,
+                "width": 73,
+                "height": 127
+            }
+        },
+        {
+            "index": 3,
+            "name": "note_003",
+            "position": {
+                "top": 109,
+                "left": 231,
+                "width": 143,
+                "height": 167
+            }
+        },
+        {
+            "index": 4,
+            "name": "note_004",
+            "position": {
+                "top": 109,
+                "left": 469,
+                "width": 110,
+                "height": 166
+            }
+        },
+        {
+            "index": 5,
+            "name": "note_005",
+            "position": {
+                "top": 116,
+                "left": 366,
+                "width": 110,
+                "height": 161
+            }
+        },
+        {
+            "index": 6,
+            "name": "note_006",
+            "position": {
+                "top": 117,
+                "left": 590,
+                "width": 110,
+                "height": 155
+            }
+        },
+        {
+            "index": 7,
+            "name": "note_007",
+            "position": {
+                "top": 279,
+                "left": 442,
+                "width": 90,
+                "height": 198
+            }
+        },
+        {
+            "index": 8,
+            "name": "note_008",
+            "position": {
+                "top": 285,
+                "left": 362,
+                "width": 52,
+                "height": 184
+            }
+        },
+        {
+            "index": 9,
+            "name": "note_009",
+            "position": {
+                "top": 295,
+                "left": 594,
+                "width": 56,
+                "height": 181
+            }
+        },
+        {
+            "index": 10,
+            "name": "note_010",
+            "position": {
+                "top": 303,
+                "left": 204,
+                "width": 89,
+                "height": 211
+            }
+        }
+    ]
+}
