@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "pdf": "works/sheet_music_01/assets/sheet_music_01.pdf",
+    "music_info": {
+        "title_info": {
+            "title": "SONATA. Op.27. No.2.",
+            "subtitle": "Sonata quasi una Fantasia",
+            "display_title": "월광 소나타"
+        },
+        "composer_info": {
+            "composer": "Ludwig van Beethoven",
+            "display_composer": "루트비히 반 베토벤"
+        }
+    },
+    "copyright_info": {
+        "copyright_free": true
+    },
+    "analysis_info": {
+        "content": "베토벤 후기 소나타 중 대표작으로…"
+    }
+}

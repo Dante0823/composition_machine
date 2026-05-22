@@ -1,0 +1,9 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "pages",
+        "path": "pages/page_001.jpg"
+    },
+    "code": "note(\"c4\").s(\"piano\")"
+}

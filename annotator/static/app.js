@@ -2,7 +2,10 @@
   const photo = document.getElementById("photo");
   const canvas = document.getElementById("overlay");
   const ctx = canvas.getContext("2d");
-  const select = document.getElementById("image-select");
+  const imageTreeList = document.getElementById("image-tree-list");
+  const imageTreeBreadcrumb = document.getElementById("image-tree-breadcrumb");
+  const imageListEmpty = document.getElementById("image-list-empty");
+  const sidebarTitle = document.querySelector(".sidebar-title");
   const workspace = document.querySelector(".workspace");
   const stage = document.getElementById("stage");
   const zoomSlider = document.getElementById("zoom-slider");
@@ -10,15 +13,26 @@
   const btnZoomOut = document.getElementById("btn-zoom-out");
   const btnZoomIn = document.getElementById("btn-zoom-in");
   const btnZoomFit = document.getElementById("btn-zoom-fit");
-  const statusEl = document.getElementById("status");
+  const logPanel = document.getElementById("log-panel");
+  const tagLogPanel = document.getElementById("tag-log-panel");
   const btnSubmit = document.getElementById("btn-submit");
   const btnClear = document.getElementById("btn-clear");
   const btnDelSel = document.getElementById("btn-delete-selected");
-  const hintEl = document.getElementById("hint");
   const sourceFolderLabel = document.getElementById("source-folder-label");
   const strudelCode = document.getElementById("strudel-code");
   const btnSaveTag = document.getElementById("btn-save-tag");
   const tagInputLabel = document.getElementById("tag-input-label");
+  const pdfViewer = document.getElementById("pdf-viewer");
+  const catalogForm = document.getElementById("catalog-form");
+  const catTitle = document.getElementById("cat-title");
+  const catSubtitle = document.getElementById("cat-subtitle");
+  const catDisplayTitle = document.getElementById("cat-display-title");
+  const catComposer = document.getElementById("cat-composer");
+  const catDisplayComposer = document.getElementById("cat-display-composer");
+  const catAnalysis = document.getElementById("cat-analysis");
+  const uploadWorkId = document.getElementById("upload-work-id");
+  const uploadPdfFile = document.getElementById("upload-pdf-file");
+  const btnUploadPdf = document.getElementById("btn-upload-pdf");
 
   const CROP_MODES = new Set([
     "page_staff",
@@ -44,28 +58,33 @@
     "tag_of_note_function",
   ]);
 
-  const TAG_MODES = new Set([...CODE_TAG_MODES, ...FUNCTION_TAG_MODES]);
+  const CATALOG_TAG_MODES = new Set(["meta_of_work"]);
 
+  const TAG_MODES = new Set([...CODE_TAG_MODES, ...FUNCTION_TAG_MODES, ...CATALOG_TAG_MODES]);
   const MODES = new Set([...CROP_MODES, ...TAG_MODES]);
-  /** @type {string} */
-  let currentMode = "page_staff";
+
+  const GROUP_DEFAULT_MODE = {
+    crop: "page_staff",
+    tag: "code_of_page",
+  };
 
   const MODE_SOURCE_FOLDER = {
-    page_staff: "source/pages",
-    staff_measure: "source/staffs",
-    measure_note: "source/measures",
-    function_in_page: "source/pages",
-    function_in_staff: "source/staffs",
-    function_in_measure: "source/measures",
-    function_in_note: "source/notes",
-    code_of_page: "source/pages",
-    code_of_staff: "source/staffs",
-    code_of_measure: "source/measures",
-    code_of_note: "source/notes",
-    tag_of_page_function: "source/functions/pages",
-    tag_of_staff_function: "source/functions/pages",
-    tag_of_measure_function: "source/functions/pages",
-    tag_of_note_function: "source/functions/pages",
+    page_staff: "works/{id}/images/pages",
+    staff_measure: "works/{id}/images/staffs",
+    measure_note: "works/{id}/images/measures",
+    function_in_page: "works/{id}/images/pages",
+    function_in_staff: "works/{id}/images/staffs",
+    function_in_measure: "works/{id}/images/measures",
+    function_in_note: "works/{id}/images/notes",
+    code_of_page: "works/{id}/images/pages",
+    code_of_staff: "works/{id}/images/staffs",
+    code_of_measure: "works/{id}/images/measures",
+    code_of_note: "works/{id}/images/notes",
+    tag_of_page_function: "works/{id}/images/functions",
+    tag_of_staff_function: "works/{id}/images/functions",
+    tag_of_measure_function: "works/{id}/images/functions",
+    tag_of_note_function: "works/{id}/images/functions",
+    meta_of_work: "works/{id}/assets + catalog.json",
   };
 
   const TAG_INPUT_UI = {
@@ -73,192 +92,510 @@
       label: "Strudel Code",
       placeholder: "Strudel 코드를 입력하세요…",
       saveLabel: "코드 저장",
-      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      readyStatus: "Strudel Code를 입력한 뒤 저장하세요.",
       savedStatus: "코드 저장 완료",
     },
     code_of_staff: {
       label: "Strudel Code",
       placeholder: "Strudel 코드를 입력하세요…",
       saveLabel: "코드 저장",
-      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      readyStatus: "Strudel Code를 입력한 뒤 저장하세요.",
       savedStatus: "코드 저장 완료",
     },
     code_of_measure: {
       label: "Strudel Code",
       placeholder: "Strudel 코드를 입력하세요…",
       saveLabel: "코드 저장",
-      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      readyStatus: "Strudel Code를 입력한 뒤 저장하세요.",
       savedStatus: "코드 저장 완료",
     },
     code_of_note: {
       label: "Strudel Code",
       placeholder: "Strudel 코드를 입력하세요…",
       saveLabel: "코드 저장",
-      readyStatus: "Strudel Code를 입력한 뒤 「코드 저장」을 누르세요.",
+      readyStatus: "Strudel Code를 입력한 뒤 저장하세요.",
       savedStatus: "코드 저장 완료",
     },
     tag_of_page_function: {
       label: "Tag",
       placeholder: "태그를 입력하세요…",
       saveLabel: "태그 저장",
-      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      readyStatus: "태그를 입력한 뒤 저장하세요.",
       savedStatus: "태그 저장 완료",
     },
     tag_of_staff_function: {
       label: "Tag",
       placeholder: "태그를 입력하세요…",
       saveLabel: "태그 저장",
-      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      readyStatus: "태그를 입력한 뒤 저장하세요.",
       savedStatus: "태그 저장 완료",
     },
     tag_of_measure_function: {
       label: "Tag",
       placeholder: "태그를 입력하세요…",
       saveLabel: "태그 저장",
-      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      readyStatus: "태그를 입력한 뒤 저장하세요.",
       savedStatus: "태그 저장 완료",
     },
     tag_of_note_function: {
       label: "Tag",
       placeholder: "태그를 입력하세요…",
       saveLabel: "태그 저장",
-      readyStatus: "태그를 입력한 뒤 「태그 저장」을 누르세요.",
+      readyStatus: "태그를 입력한 뒤 저장하세요.",
       savedStatus: "태그 저장 완료",
     },
   };
 
-  /** @type {Record<string, string[]>} */
-  const HINT_LINES = {
-    page_staff: [
-      "<strong>Page → Staff</strong> · 소스는 <code>source/pages</code>",
-      "드래그로 사각형을 그립니다.",
-      "박스를 클릭하면 선택(빨간 테두리)됩니다.",
-      "<kbd>Del</kbd> 또는 「선택 삭제」로 선택 박스를 지웁니다.",
-      "저장 순서: 위→아래, 같은 줄에서는 왼쪽→오른쪽.",
-      "슬라이더·휠(이미지 위)로 표시 크기를 조절합니다.",
-      "저장: <code>source/staffs/{악보}/{페이지stem}/staff_001.jpg</code> …",
-    ],
-    staff_measure: [
-      "<strong>Staff → Measure</strong> · 소스는 <code>source/staffs</code>",
-      "악보 한 페이지에서 잘라낸 staff 이미지를 열고, 마디(measure) 단위로 다시 박스를 그립니다.",
-      "드래그·선택·삭제·줌 동작은 Page → Staff와 같습니다.",
-      "저장: <code>source/measures/{악보}/{페이지}/{staff파일stem}/measure_001.jpg</code> …",
-    ],
-    measure_note: [
-      "<strong>Measure → Note</strong> · 소스는 <code>source/measures</code>",
-      "각 마디 이미지를 열고, 필요한 노트 영역만 박스로 지정합니다.",
-      "저장: <code>source/notes/{악보}/{페이지}/{staffstem}/{measurestem}/note_001.jpg</code> …",
-    ],
-    function_in_page: [
-      "<strong>Functions in Page</strong> · 소스는 <code>source/pages</code>",
-      "페이지 이미지에서 function 영역을 박스로 지정합니다.",
-      "이미지: <code>source/functions/pages/{악보}/{페이지}/function_001.jpg</code> …",
-      "좌표: <code>data/position_data/functions_in_page/{악보}/{페이지}.json</code>",
-    ],
-    function_in_staff: [
-      "<strong>Functions in Staff</strong> · 소스는 <code>source/staffs</code>",
-      "staff 이미지에서 function 영역을 박스로 지정합니다.",
-      "이미지: <code>source/functions/pages/{악보}/{페이지}/{staff}/function_001.jpg</code> …",
-      "좌표: <code>data/position_data/functions_in_staff/…</code>",
-    ],
-    function_in_measure: [
-      "<strong>Functions in Measure</strong> · 소스는 <code>source/measures</code>",
-      "measure 이미지에서 function 영역을 박스로 지정합니다.",
-      "이미지: <code>source/functions/pages/…/{measure}/function_001.jpg</code> …",
-      "좌표: <code>data/position_data/functions_in_measure/…</code>",
-    ],
-    function_in_note: [
-      "<strong>Functions in Note</strong> · 소스는 <code>source/notes</code>",
-      "note 이미지에서 function 영역을 박스로 지정합니다.",
-      "이미지: <code>source/functions/pages/…/{note}/function_001.jpg</code> …",
-      "좌표: <code>data/position_data/function_in_note/…</code>",
-    ],
-    code_of_page: [
-      "<strong>Code of Page</strong> · 소스는 <code>source/pages</code>",
-      "페이지 이미지를 보며 Strudel Code를 입력합니다 (실행·검증 없음).",
-      "저장: <code>data/tag_data/pages/{악보}/{페이지}.json</code>",
-    ],
-    code_of_staff: [
-      "<strong>Code of Staff</strong> · 소스는 <code>source/staffs</code>",
-      "staff 이미지마다 Strudel Code를 입력·저장합니다.",
-      "저장: <code>data/tag_data/pages/{악보}/{페이지}/{staff}.json</code>",
-    ],
-    code_of_measure: [
-      "<strong>Code of Measure</strong> · 소스는 <code>source/measures</code>",
-      "measure 이미지마다 Strudel Code를 입력·저장합니다.",
-      "저장: <code>data/tag_data/pages/…/{measure}.json</code>",
-    ],
-    code_of_note: [
-      "<strong>Code of Note</strong> · 소스는 <code>source/notes</code>",
-      "note 이미지마다 Strudel Code를 입력·저장합니다.",
-      "저장: <code>data/tag_data/pages/…/{note}.json</code>",
-    ],
-    tag_of_page_function: [
-      "<strong>Tag of Page Function</strong> · 소스는 <code>source/functions/pages</code>",
-      "page function 이미지마다 태그를 텍스트로 입력합니다.",
-      "저장: <code>data/tag_data/functions/pages/{악보}/{페이지}/{function}.json</code>",
-    ],
-    tag_of_staff_function: [
-      "<strong>Tag of Staff Function</strong> · 소스는 <code>source/functions/pages</code>",
-      "staff function 이미지마다 태그를 입력합니다.",
-      "저장: <code>data/tag_data/functions/pages/…/{staff}/{function}.json</code>",
-    ],
-    tag_of_measure_function: [
-      "<strong>Tag of Measure Function</strong> · 소스는 <code>source/functions/pages</code>",
-      "measure function 이미지마다 태그를 입력합니다.",
-      "저장: <code>data/tag_data/functions/pages/…/{measure}/{function}.json</code>",
-    ],
-    tag_of_note_function: [
-      "<strong>Tag of Note Function</strong> · 소스는 <code>source/functions/pages</code>",
-      "note function 이미지마다 태그를 입력합니다.",
-      "저장: <code>data/tag_data/functions/pages/…/{note}/{function}.json</code>",
-    ],
-  };
+  /** @type {string} */
+  let currentMode = "page_staff";
+  /** @type {"crop" | "tag"} */
+  let currentGroup = "crop";
+  /** @type {string[]} */
+  let allImages = [];
+  /** @type {string | null} */
+  let selectedImagePath = null;
+  /** @type {string[]} */
+  let treePath = [];
+  /** @type {{ x: number, y: number, w: number, h: number }[]} */
+  let boxes = [];
+  /** @type {number | null} */
+  let selectedIndex = null;
+  let zoomPct = Number(zoomSlider?.value) || 100;
+  let drawing = false;
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
+
+  function isCatalogMode() {
+    return CATALOG_TAG_MODES.has(currentMode);
+  }
 
   function isFunctionTagMode() {
     return FUNCTION_TAG_MODES.has(currentMode);
-  }
-
-  function tagInputUi() {
-    return TAG_INPUT_UI[currentMode] || TAG_INPUT_UI.code_of_page;
   }
 
   function isTagMode() {
     return TAG_MODES.has(currentMode);
   }
 
-  function renderHints() {
-    const lines = HINT_LINES[currentMode] || HINT_LINES.page_staff;
-    hintEl.innerHTML = "";
-    for (const html of lines) {
-      const li = document.createElement("li");
-      li.innerHTML = html;
-      hintEl.appendChild(li);
+  function isCropMode() {
+    return CROP_MODES.has(currentMode);
+  }
+
+  function tagInputUi() {
+    return TAG_INPUT_UI[currentMode] || TAG_INPUT_UI.code_of_page;
+  }
+
+  function activeLogPanel() {
+    return isTagMode() ? tagLogPanel : logPanel;
+  }
+
+  const LOG_SAVE_OK = "저장에 성공했습니다.";
+  const LOG_SAVE_FAIL = "저장에 실패했습니다.";
+  const LOG_LOAD_FAIL = "이미지 로드에 실패했습니다.";
+
+  function appendLog(msg, kind = "") {
+    const panel = activeLogPanel();
+    if (!panel) return;
+    const entry = document.createElement("div");
+    entry.className = "log-entry" + (kind ? ` log-entry--${kind}` : "");
+    const time = document.createElement("time");
+    time.textContent = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+    entry.appendChild(time);
+    entry.appendChild(document.createTextNode(msg));
+    panel.prepend(entry);
+    while (panel.childElementCount > 100) {
+      panel.lastElementChild?.remove();
     }
   }
 
-  function applyModeUi() {
-    document.body.classList.toggle("is-tag-mode", isTagMode());
-    sourceFolderLabel.textContent = MODE_SOURCE_FOLDER[currentMode];
-    const ui = tagInputUi();
-    if (tagInputLabel) tagInputLabel.textContent = ui.label;
-    if (strudelCode) {
-      strudelCode.placeholder = ui.placeholder;
+  function logSuccess(msg = LOG_SAVE_OK) {
+    appendLog(msg, "ok");
+  }
+
+  function logFailure(msg) {
+    appendLog(msg, "err");
+  }
+
+  function storageKey(mode) {
+    return `annotator:lastImage:${mode}`;
+  }
+
+  function rememberSelection(path) {
+    if (!path) return;
+    try {
+      localStorage.setItem(storageKey(currentMode), path);
+    } catch {
+      /* ignore */
     }
-    if (btnSaveTag) btnSaveTag.textContent = ui.saveLabel;
-    renderHints();
-    document.querySelectorAll(".mode-nav__btn").forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.mode === currentMode);
+  }
+
+  function recalledSelection() {
+    try {
+      return localStorage.getItem(storageKey(currentMode));
+    } catch {
+      return null;
+    }
+  }
+
+  function workStateStorageKey(mode) {
+    return `annotator:workState:${mode}`;
+  }
+
+  /** @returns {Record<string, "active" | "done">} */
+  function loadWorkStates(mode = currentMode) {
+    try {
+      const raw = localStorage.getItem(workStateStorageKey(mode));
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return typeof parsed === "object" && parsed !== null ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveWorkStates(states, mode = currentMode) {
+    try {
+      localStorage.setItem(workStateStorageKey(mode), JSON.stringify(states));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function getWorkState(path, mode = currentMode) {
+    const states = loadWorkStates(mode);
+    return states[path] === "done" ? "done" : "active";
+  }
+
+  function syncWorkStates(images) {
+    const states = loadWorkStates();
+    let changed = false;
+    for (const path of images) {
+      if (!(path in states)) {
+        states[path] = "active";
+        changed = true;
+      }
+    }
+    for (const path of Object.keys(states)) {
+      if (!images.includes(path)) {
+        delete states[path];
+        changed = true;
+      }
+    }
+    if (changed) saveWorkStates(states);
+  }
+
+  function markWorkDone(path) {
+    updateWorkState(path, true);
+  }
+
+  function updateWorkState(path, done) {
+    if (!path) return;
+    const states = loadWorkStates();
+    states[path] = done ? "done" : "active";
+    saveWorkStates(states);
+    renderImageTree();
+  }
+
+  function syncCatalogWorkStates(completeMap) {
+    const states = loadWorkStates();
+    let changed = false;
+    for (const work of allImages) {
+      const next = completeMap?.[work] ? "done" : "active";
+      if (states[work] !== next) {
+        states[work] = next;
+        changed = true;
+      }
+    }
+    for (const path of Object.keys(states)) {
+      if (!allImages.includes(path)) {
+        delete states[path];
+        changed = true;
+      }
+    }
+    if (changed) saveWorkStates(states);
+  }
+
+  function displayName(filename) {
+    return filename.replace(/\.[^.]+$/, "");
+  }
+
+  /** @returns {{ name: string, kind: "folder" | "leaf", path?: string }[]} */
+  function listChildrenAtPath(prefixParts) {
+    /** @type {Map<string, { kind: "folder" | "leaf", path?: string }>} */
+    const map = new Map();
+
+    for (const imgPath of allImages) {
+      const parts = imgPath.split("/");
+      if (prefixParts.length && !prefixParts.every((part, i) => parts[i] === part)) {
+        continue;
+      }
+      const depth = prefixParts.length;
+      if (parts.length <= depth) continue;
+
+      const name = parts[depth];
+      if (parts.length === depth + 1) {
+        map.set(name, { kind: "leaf", path: imgPath });
+      } else if (!map.has(name)) {
+        map.set(name, { kind: "folder" });
+      }
+    }
+
+    return [...map.entries()]
+      .sort((a, b) => {
+        const aFolder = a[1].kind === "folder" ? 0 : 1;
+        const bFolder = b[1].kind === "folder" ? 0 : 1;
+        if (aFolder !== bFolder) return aFolder - bFolder;
+        return a[0].localeCompare(b[0], undefined, { numeric: true });
+      })
+      .map(([name, info]) => ({ name, ...info }));
+  }
+
+  function isPrefixDone(prefixParts) {
+    const prefix = prefixParts.join("/");
+    const matching = allImages.filter((path) => {
+      if (!prefix) return true;
+      return path === prefix || path.startsWith(`${prefix}/`);
+    });
+    return matching.length > 0 && matching.every((path) => getWorkState(path) === "done");
+  }
+
+  function treePathForImage(path) {
+    return path.split("/").slice(0, -1);
+  }
+
+  function renderImageTreeBreadcrumb() {
+    if (!imageTreeBreadcrumb) return;
+    imageTreeBreadcrumb.innerHTML = "";
+
+    if (!allImages.length || isCatalogMode()) {
+      imageTreeBreadcrumb.hidden = true;
+      return;
+    }
+
+    imageTreeBreadcrumb.hidden = false;
+
+    const rootBtn = document.createElement("button");
+    rootBtn.type = "button";
+    rootBtn.className = "image-tree-breadcrumb__item" + (treePath.length === 0 ? " is-current" : "");
+    rootBtn.textContent = "루트";
+    rootBtn.dataset.crumbIdx = "0";
+    imageTreeBreadcrumb.appendChild(rootBtn);
+
+    treePath.forEach((segment, i) => {
+      const sep = document.createElement("span");
+      sep.className = "image-tree-breadcrumb__sep";
+      sep.textContent = "›";
+      sep.setAttribute("aria-hidden", "true");
+      imageTreeBreadcrumb.appendChild(sep);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const isCurrent = i === treePath.length - 1;
+      btn.className = "image-tree-breadcrumb__item" + (isCurrent ? " is-current" : "");
+      btn.textContent = displayName(segment);
+      btn.dataset.crumbIdx = String(i + 1);
+      imageTreeBreadcrumb.appendChild(btn);
     });
   }
 
+  function renderImageTree() {
+    if (!imageTreeList) return;
+    imageTreeList.innerHTML = "";
+    renderImageTreeBreadcrumb();
+
+    if (!allImages.length) {
+      imageListEmpty?.removeAttribute("hidden");
+      if (imageListEmpty) {
+        imageListEmpty.textContent = isCatalogMode()
+          ? "Work가 없습니다. PDF를 업로드하세요."
+          : "이미지가 없습니다.";
+      }
+      return;
+    }
+    imageListEmpty?.setAttribute("hidden", "");
+
+    const children = listChildrenAtPath(treePath);
+    for (const child of children) {
+      const li = document.createElement("li");
+      li.className = "image-tree-item";
+      li.dataset.treeKind = child.kind;
+      li.dataset.treeName = child.name;
+      if (child.path) li.dataset.path = child.path;
+
+      const done =
+        child.kind === "leaf"
+          ? getWorkState(child.path) === "done"
+          : isPrefixDone([...treePath, child.name]);
+      if (done) li.classList.add("is-done");
+      if (child.kind === "leaf" && child.path === selectedImagePath) {
+        li.classList.add("is-selected");
+      }
+
+      const icon = document.createElement("span");
+      icon.className = "image-tree-item__icon";
+      icon.textContent = child.kind === "folder" ? "▸" : "•";
+      icon.setAttribute("aria-hidden", "true");
+
+      const label = document.createElement("span");
+      label.className = "image-tree-item__label";
+      label.textContent = displayName(child.name);
+
+      li.appendChild(icon);
+      li.appendChild(label);
+      imageTreeList.appendChild(li);
+    }
+  }
+
+  function selectImage(path, { remember = true } = {}) {
+    if (!path || !allImages.includes(path)) return;
+    selectedImagePath = path;
+    if (isCatalogMode()) {
+      if (remember) rememberSelection(path);
+      if (uploadWorkId) uploadWorkId.value = path;
+      renderImageTree();
+      if (pdfViewer) {
+        pdfViewer.hidden = false;
+        pdfViewer.src = `/api/work-pdf/${encodeURIComponent(path)}`;
+      }
+      photo.removeAttribute("src");
+      loadCatalogForWork(path).catch(() => logFailure(LOG_LOAD_FAIL));
+      return;
+    }
+    treePath = treePathForImage(path);
+    if (remember) rememberSelection(path);
+    renderImageTree();
+    if (pdfViewer) {
+      pdfViewer.hidden = true;
+      pdfViewer.removeAttribute("src");
+    }
+    photo.src = imageApiUrl(path);
+  }
+
+  function clearCatalogForm() {
+    if (catTitle) catTitle.value = "";
+    if (catSubtitle) catSubtitle.value = "";
+    if (catDisplayTitle) catDisplayTitle.value = "";
+    if (catComposer) catComposer.value = "";
+    if (catDisplayComposer) catDisplayComposer.value = "";
+    if (catAnalysis) catAnalysis.value = "";
+    catalogForm?.querySelectorAll('input[name="copyright_free"]').forEach((el) => {
+      el.checked = false;
+    });
+  }
+
+  function fillCatalogForm(data) {
+    if (catTitle) catTitle.value = data.title ?? "";
+    if (catSubtitle) catSubtitle.value = data.subtitle ?? "";
+    if (catDisplayTitle) catDisplayTitle.value = data.display_title ?? "";
+    if (catComposer) catComposer.value = data.composer ?? "";
+    if (catDisplayComposer) catDisplayComposer.value = data.display_composer ?? "";
+    if (catAnalysis) catAnalysis.value = data.analysis ?? "";
+    catalogForm?.querySelectorAll('input[name="copyright_free"]').forEach((el) => {
+      if (data.copyright_free === true) el.checked = el.value === "true";
+      else if (data.copyright_free === false) el.checked = el.value === "false";
+      else el.checked = false;
+    });
+  }
+
+  function readCatalogForm() {
+    const copyrightEl = catalogForm?.querySelector('input[name="copyright_free"]:checked');
+    return {
+      work: selectedImagePath,
+      title: catTitle?.value ?? "",
+      subtitle: catSubtitle?.value ?? "",
+      display_title: catDisplayTitle?.value ?? "",
+      composer: catComposer?.value ?? "",
+      display_composer: catDisplayComposer?.value ?? "",
+      analysis: catAnalysis?.value ?? "",
+      copyright_free: copyrightEl ? copyrightEl.value === "true" : null,
+    };
+  }
+
+  async function loadCatalogForWork(work) {
+    if (!work || !isCatalogMode()) {
+      clearCatalogForm();
+      return;
+    }
+    const q = new URLSearchParams({ work });
+    const res = await fetch(`/api/catalog?${q}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.detail || `오류 ${res.status}`);
+    }
+    fillCatalogForm(data);
+    updateWorkState(work, !!data.complete);
+  }
+
+  function clearWorkspace() {
+    photo.removeAttribute("src");
+    if (pdfViewer) {
+      pdfViewer.hidden = true;
+      pdfViewer.removeAttribute("src");
+    }
+    selectedImagePath = null;
+    if (strudelCode) strudelCode.value = "";
+    clearCatalogForm();
+    boxes = [];
+    selectedIndex = null;
+    redraw();
+    renderImageTree();
+  }
+
+  function navigateTreeTo(index) {
+    treePath = treePath.slice(0, index);
+    renderImageTree();
+  }
+
+  function navigateTreeInto(name) {
+    treePath = [...treePath, name];
+    renderImageTree();
+  }
+
+  function applyModeUi() {
+    currentGroup = isTagMode() ? "tag" : "crop";
+    document.body.classList.toggle("is-tag-mode", isTagMode());
+    document.body.classList.toggle("is-tag-group", currentGroup === "tag");
+    document.body.classList.toggle("is-catalog-mode", isCatalogMode());
+
+    if (sourceFolderLabel) {
+      sourceFolderLabel.textContent = MODE_SOURCE_FOLDER[currentMode] || "";
+    }
+
+    if (sidebarTitle) {
+      sidebarTitle.textContent = isCatalogMode() ? "Work 목록" : "이미지 목록";
+    }
+
+    if (isCatalogMode()) {
+      if (btnSaveTag) btnSaveTag.textContent = "메타 저장";
+    } else {
+      const ui = tagInputUi();
+      if (tagInputLabel) tagInputLabel.textContent = ui.label;
+      if (strudelCode) strudelCode.placeholder = ui.placeholder;
+      if (btnSaveTag) btnSaveTag.textContent = ui.saveLabel;
+    }
+
+    document.querySelectorAll(".mode-group-nav__btn").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.group === currentGroup);
+    });
+
+    document.querySelectorAll(".mode-nav__btn").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.mode === currentMode);
+    });
+
+    const cropNav = document.querySelector(".mode-nav.crop-group-only");
+    const tagNav = document.querySelector(".mode-nav.tag-group-only");
+    if (cropNav) cropNav.hidden = currentGroup !== "crop";
+    if (tagNav) tagNav.hidden = currentGroup !== "tag";
+  }
+
   async function loadTagForImage() {
-    const rel = select.value;
-    if (!rel || !isTagMode()) {
+    if (!selectedImagePath || !isTagMode() || isCatalogMode()) {
       if (strudelCode) strudelCode.value = "";
       return;
     }
-    const q = new URLSearchParams({ mode: currentMode, relative_path: rel });
+    const q = new URLSearchParams({ mode: currentMode, relative_path: selectedImagePath });
     const res = await fetch(`/api/tag?${q}`);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -281,43 +618,53 @@
 
   function setMode(mode) {
     if (!MODES.has(mode)) {
-      setStatus(`알 수 없는 mode: ${mode}`, "err");
       return Promise.resolve();
     }
     currentMode = mode;
     applyModeUi();
     syncUrlMode();
-    return loadImageList().catch((e) => {
-      setStatus(String(e), "err");
-    });
+    return loadImageList().catch(() => logFailure(LOG_LOAD_FAIL));
+  }
+
+  function setGroup(group) {
+    if (group !== "crop" && group !== "tag") return;
+    const modes = group === "crop" ? CROP_MODES : TAG_MODES;
+    if (!modes.has(currentMode)) {
+      setMode(GROUP_DEFAULT_MODE[group]);
+      return;
+    }
+    currentGroup = group;
+    applyModeUi();
   }
 
   document.addEventListener("click", (ev) => {
-    const btn = ev.target.closest(".mode-nav__btn[data-mode]");
-    if (!btn) return;
-    const mode = btn.getAttribute("data-mode");
-    if (!mode) return;
-    setMode(mode);
+    const groupBtn = ev.target.closest(".mode-group-nav__btn[data-group]");
+    if (groupBtn) {
+      setGroup(groupBtn.dataset.group);
+      return;
+    }
+
+    const modeBtn = ev.target.closest(".mode-nav__btn[data-mode]");
+    if (modeBtn) {
+      setMode(modeBtn.getAttribute("data-mode"));
+      return;
+    }
+
+    const crumb = ev.target.closest(".image-tree-breadcrumb__item[data-crumb-idx]");
+    if (crumb && !crumb.classList.contains("is-current")) {
+      navigateTreeTo(Number(crumb.dataset.crumbIdx));
+      return;
+    }
+
+    const item = ev.target.closest(".image-tree-item[data-tree-kind]");
+    if (item) {
+      if (item.dataset.treeKind === "folder") {
+        navigateTreeInto(item.dataset.treeName);
+      } else if (item.dataset.path) {
+        selectImage(item.dataset.path);
+      }
+    }
   });
-
-  /** @type {{ x: number, y: number, w: number, h: number }[]} */
-  let boxes = [];
-  /** @type {number | null} */
-  let selectedIndex = null;
-
-  /** 작업 패널에 맞춤(100%)을 기준으로 한 표시 크기 비율(%) */
-  let zoomPct = Number(zoomSlider?.value) || 100;
-
-  let drawing = false;
-  let startX = 0;
-  let startY = 0;
-  let currentX = 0;
-  let currentY = 0;
-
-  function setStatus(msg, kind = "") {
-    statusEl.textContent = msg;
-    statusEl.className = "status " + kind;
-  }
 
   function availWidthForImage() {
     return Math.max(80, workspace.clientWidth - 32);
@@ -340,14 +687,10 @@
   }
 
   function syncZoomUi() {
-    zoomSlider.value = String(zoomPct);
-    zoomValue.textContent = `${Math.round(zoomPct)}%`;
+    if (zoomSlider) zoomSlider.value = String(zoomPct);
+    if (zoomValue) zoomValue.textContent = `${Math.round(zoomPct)}%`;
   }
 
-  /**
-   * 이미지 표시 크기 적용 후 캔버스 동기화. 새 이미지 로드처럼 박스를 비운 뒤엔 rescale 스킵.
-   * @param {boolean} skipBoxRescale
-   */
   function layoutImage(skipBoxRescale = false) {
     const nw = photo.naturalWidth;
     const nh = photo.naturalHeight;
@@ -410,7 +753,6 @@
     }
   }
 
-  /** 화면 좌표 → 자연 이미지 픽셀 */
   function displayToNatural(box) {
     const nw = photo.naturalWidth;
     const nh = photo.naturalHeight;
@@ -447,36 +789,37 @@
     syncZoomUi();
     layoutImage(true);
     if (isTagMode()) {
-      loadTagForImage()
-        .then(() => setStatus(tagInputUi().readyStatus))
-        .catch((e) => setStatus(String(e), "err"));
+      loadTagForImage().catch(() => logFailure(LOG_LOAD_FAIL));
       return;
     }
     boxes = [];
     selectedIndex = null;
     redraw();
-    setStatus("이미지 준비됨. 드래그로 박스를 그리세요.");
   });
 
-  zoomSlider.addEventListener("input", () => {
+  photo.addEventListener("error", () => {
+    logFailure(LOG_LOAD_FAIL);
+  });
+
+  zoomSlider?.addEventListener("input", () => {
     zoomPct = Number(zoomSlider.value);
-    zoomValue.textContent = `${zoomPct}%`;
+    if (zoomValue) zoomValue.textContent = `${zoomPct}%`;
     if (photo.naturalWidth) layoutImage(false);
   });
 
-  btnZoomOut.addEventListener("click", () => {
+  btnZoomOut?.addEventListener("click", () => {
     zoomPct = Math.max(25, zoomPct - 10);
     syncZoomUi();
     if (photo.naturalWidth) layoutImage(false);
   });
 
-  btnZoomIn.addEventListener("click", () => {
+  btnZoomIn?.addEventListener("click", () => {
     zoomPct = Math.min(400, zoomPct + 10);
     syncZoomUi();
     if (photo.naturalWidth) layoutImage(false);
   });
 
-  btnZoomFit.addEventListener("click", () => {
+  btnZoomFit?.addEventListener("click", () => {
     zoomPct = 100;
     syncZoomUi();
     if (photo.naturalWidth) layoutImage(false);
@@ -534,7 +877,6 @@
     if (w > 4 && h > 4) {
       boxes.push({ x, y, w, h });
       selectedIndex = boxes.length - 1;
-      setStatus(`박스 ${boxes.length}개`);
     }
     redraw();
   });
@@ -553,39 +895,82 @@
         boxes.splice(selectedIndex, 1);
         selectedIndex = boxes.length ? Math.min(selectedIndex, boxes.length - 1) : null;
         redraw();
-        setStatus(`박스 ${boxes.length}개`);
       }
     }
   });
 
-  btnDelSel.addEventListener("click", () => {
+  btnDelSel?.addEventListener("click", () => {
     if (selectedIndex !== null && boxes[selectedIndex]) {
       boxes.splice(selectedIndex, 1);
       selectedIndex = boxes.length ? Math.min(selectedIndex, boxes.length - 1) : null;
       redraw();
-      setStatus(`박스 ${boxes.length}개`);
     }
   });
 
-  btnClear.addEventListener("click", () => {
+  btnClear?.addEventListener("click", () => {
     boxes = [];
     selectedIndex = null;
     redraw();
-    setStatus("박스를 모두 지웠습니다.");
+  });
+
+  btnUploadPdf?.addEventListener("click", async () => {
+    const work = uploadWorkId?.value?.trim();
+    const file = uploadPdfFile?.files?.[0];
+    if (!work) {
+      logFailure(LOG_SAVE_FAIL);
+      return;
+    }
+    if (!file) {
+      logFailure(LOG_SAVE_FAIL);
+      return;
+    }
+    btnUploadPdf.disabled = true;
+    try {
+      const form = new FormData();
+      form.append("work", work);
+      form.append("file", file);
+      const res = await fetch("/api/work-upload", { method: "POST", body: form });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        logFailure(LOG_SAVE_FAIL);
+        return;
+      }
+      logSuccess();
+      if (uploadPdfFile) uploadPdfFile.value = "";
+      await loadImageList();
+      if (allImages.includes(work)) {
+        selectImage(work, { remember: false });
+      }
+    } catch {
+      logFailure(LOG_SAVE_FAIL);
+    } finally {
+      btnUploadPdf.disabled = false;
+    }
   });
 
   btnSaveTag?.addEventListener("click", async () => {
-    const rel = select.value;
-    if (!rel) {
-      setStatus("이미지를 선택하세요.", "err");
-      return;
-    }
+    if (!selectedImagePath) return;
     btnSaveTag.disabled = true;
-    setStatus("저장 중…");
     try {
+      if (isCatalogMode()) {
+        const res = await fetch("/api/catalog", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(readCatalogForm()),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          logFailure(LOG_SAVE_FAIL);
+          return;
+        }
+        logSuccess();
+        updateWorkState(selectedImagePath, !!data.complete);
+        return;
+      }
+
       const body = {
         mode: currentMode,
-        relative_path: rel,
+        relative_path: selectedImagePath,
       };
       if (isFunctionTagMode()) {
         body.tag = strudelCode.value;
@@ -597,111 +982,99 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(data.detail || `오류 ${res.status}`, "err");
+        logFailure(LOG_SAVE_FAIL);
         return;
       }
-      setStatus(`${tagInputUi().savedStatus} → ${data.tag_path}`, "ok");
-    } catch (e) {
-      setStatus(String(e), "err");
+      logSuccess();
+      markWorkDone(selectedImagePath);
+    } catch {
+      logFailure(LOG_SAVE_FAIL);
     } finally {
       btnSaveTag.disabled = false;
     }
   });
 
-  btnSubmit.addEventListener("click", async () => {
-    const rel = select.value;
-    if (!rel) {
-      setStatus("이미지를 선택하세요.", "err");
-      return;
-    }
-    if (!boxes.length) {
-      setStatus("박스를 하나 이상 그리세요.", "err");
-      return;
-    }
+  btnSubmit?.addEventListener("click", async () => {
+    if (!selectedImagePath) return;
 
     const naturalBoxes = [];
     for (let i = 0; i < boxes.length; i++) {
       const n = displayToNatural(boxes[i]);
-      if (!n) {
-        setStatus("이미지 좌표 변환 실패.", "err");
-        return;
-      }
+      if (!n) return;
       naturalBoxes.push(n);
     }
-
     naturalBoxes.sort((a, b) => a.y - b.y || a.x - b.x);
 
     btnSubmit.disabled = true;
-    setStatus("저장 중…");
     try {
       const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: currentMode, relative_path: rel, boxes: naturalBoxes }),
+        body: JSON.stringify({
+          mode: currentMode,
+          relative_path: selectedImagePath,
+          boxes: naturalBoxes,
+        }),
       });
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(data.detail || `오류 ${res.status}`, "err");
+        logFailure(LOG_SAVE_FAIL);
         return;
       }
-      setStatus(`저장 완료: ${data.count}개 → ${data.saved.join(", ")}`, "ok");
-    } catch (e) {
-      setStatus(String(e), "err");
+      logSuccess();
+      markWorkDone(selectedImagePath);
+    } catch {
+      logFailure(LOG_SAVE_FAIL);
     } finally {
       btnSubmit.disabled = false;
     }
   });
 
   async function loadImageList() {
-    select.innerHTML = "";
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— 선택 —";
-    select.appendChild(opt0);
+    allImages = [];
+    treePath = [];
+    selectedImagePath = null;
 
     const res = await fetch(`/api/images?mode=${encodeURIComponent(currentMode)}`);
+    if (!res.ok) {
+      clearWorkspace();
+      renderImageTree();
+      logFailure(LOG_LOAD_FAIL);
+      return;
+    }
     const data = await res.json();
-    const images = data.images || [];
-    if (!images.length) {
-      photo.removeAttribute("src");
-      if (strudelCode) strudelCode.value = "";
-      boxes = [];
-      selectedIndex = null;
-      redraw();
-      setStatus(`이미지가 없습니다 (${MODE_SOURCE_FOLDER[currentMode]}).`, "err");
-      return;
-    }
-    for (const p of images) {
-      const o = document.createElement("option");
-      o.value = p;
-      o.textContent = p;
-      select.appendChild(o);
-    }
-    select.value = images[0];
-    photo.src = imageApiUrl(images[0]);
-    setStatus(`${images.length}개 이미지`);
-  }
+    allImages = data.images || [];
 
-  select.addEventListener("change", () => {
-    const v = select.value;
-    if (!v) {
-      photo.removeAttribute("src");
-      if (strudelCode) strudelCode.value = "";
-      boxes = [];
-      selectedIndex = null;
-      redraw();
+    if (!allImages.length) {
+      clearWorkspace();
+      renderImageTree();
+      if (!isCatalogMode()) {
+        logFailure(LOG_LOAD_FAIL);
+      }
       return;
     }
-    photo.src = imageApiUrl(v);
-  });
+
+    if (sourceFolderLabel) {
+      sourceFolderLabel.textContent =
+        data.source_label || MODE_SOURCE_FOLDER[currentMode] || "";
+    }
+
+    if (isCatalogMode()) {
+      syncCatalogWorkStates(data.catalog_complete || {});
+    } else {
+      syncWorkStates(allImages);
+    }
+
+    const recalled = recalledSelection();
+    const initial = recalled && allImages.includes(recalled) ? recalled : allImages[0];
+    selectImage(initial, { remember: false });
+  }
 
   (function bootstrap() {
     const fromUrl = new URLSearchParams(location.search).get("mode");
     if (fromUrl && MODES.has(fromUrl)) currentMode = fromUrl;
     applyModeUi();
     syncUrlMode();
-    loadImageList().catch((e) => setStatus(String(e), "err"));
+    loadImageList().catch(() => logFailure(LOG_LOAD_FAIL));
   })();
 })();

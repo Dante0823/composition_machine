@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "pages",
+        "path": "pages/page_001.jpg"
+    },
+    "item_layer": "staffs",
+    "items": [
+        {
+            "index": 1,
+            "name": "staff_001",
+            "position": {
+                "top": 618,
+                "left": 125,
+                "width": 2317,
+                "height": 497
+            }
+        }
+    ]
+}
