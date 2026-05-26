@@ -298,6 +298,7 @@ def _submit_crop(mode: AnnotMode, src: Path, ordered: list[Box]) -> tuple[list[s
 
     dest_parent = source_under.parent if source_under.parent != Path(".") else Path()
     dest_dir = crop_output_dir(work, output_layer, dest_parent / src.stem)
+    dest_dir.mkdir(parents=True, exist_ok=True)
 
     saved: list[str] = []
     items: list[dict[str, Any]] = []

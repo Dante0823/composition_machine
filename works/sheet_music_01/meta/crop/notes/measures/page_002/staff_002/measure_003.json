@@ -1,0 +1,81 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "measures",
+        "path": "measures/page_002/staff_002/measure_003.jpg"
+    },
+    "items": [
+        {
+            "index": 1,
+            "name": "note_001",
+            "position": {
+                "top": 1,
+                "left": 8,
+                "width": 32,
+                "height": 67
+            }
+        },
+        {
+            "index": 2,
+            "name": "note_002",
+            "position": {
+                "top": 1,
+                "left": 154,
+                "width": 38,
+                "height": 68
+            }
+        },
+        {
+            "index": 3,
+            "name": "note_003",
+            "position": {
+                "top": 7,
+                "left": 235,
+                "width": 33,
+                "height": 69
+            }
+        },
+        {
+            "index": 4,
+            "name": "note_004",
+            "position": {
+                "top": 48,
+                "left": 83,
+                "width": 72,
+                "height": 90
+            }
+        },
+        {
+            "index": 5,
+            "name": "note_005",
+            "position": {
+                "top": 50,
+                "left": 5,
+                "width": 81,
+                "height": 92
+            }
+        },
+        {
+            "index": 6,
+            "name": "note_006",
+            "position": {
+                "top": 51,
+                "left": 230,
+                "width": 95,
+                "height": 99
+            }
+        },
+        {
+            "index": 7,
+            "name": "note_007",
+            "position": {
+                "top": 56,
+                "left": 158,
+                "width": 77,
+                "height": 90
+            }
+        }
+    ],
+    "item_layer": "notes"
+}

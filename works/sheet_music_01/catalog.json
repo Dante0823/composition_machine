@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "pdf": "works/sheet_music_01/assets/sheet_music_01.pdf",
+    "music_info": {
+        "title_info": {
+            "title": "",
+            "subtitle": "",
+            "display_title": ""
+        },
+        "composer_info": {
+            "composer": "",
+            "display_composer": ""
+        }
+    },
+    "copyright_info": {
+        "copyright_free": null
+    },
+    "analysis_info": {
+        "content": ""
+    }
+}

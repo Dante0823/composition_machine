@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "staffs",
+        "path": "staffs/page_003/staff_006.jpg"
+    },
+    "items": [
+        {
+            "index": 1,
+            "name": "function_001",
+            "position": {
+                "top": 29,
+                "left": 45,
+                "width": 44,
+                "height": 130
+            }
+        },
+        {
+            "index": 2,
+            "name": "function_002",
+            "position": {
+                "top": 29,
+                "left": 91,
+                "width": 74,
+                "height": 105
+            }
+        },
+        {
+            "index": 3,
+            "name": "function_003",
+            "position": {
+                "top": 198,
+                "left": 42,
+                "width": 47,
+                "height": 90
+            }
+        },
+        {
+            "index": 4,
+            "name": "function_004",
+            "position": {
+                "top": 198,
+                "left": 93,
+                "width": 74,
+                "height": 87
+            }
+        }
+    ],
+    "item_layer": "functions"
+}

@@ -1,0 +1,71 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "pages",
+        "path": "pages/page_002.jpg"
+    },
+    "items": [
+        {
+            "index": 1,
+            "name": "function_001",
+            "position": {
+                "top": 116,
+                "left": 43,
+                "width": 60,
+                "height": 280
+            }
+        },
+        {
+            "index": 2,
+            "name": "function_002",
+            "position": {
+                "top": 504,
+                "left": 43,
+                "width": 54,
+                "height": 252
+            }
+        },
+        {
+            "index": 3,
+            "name": "function_003",
+            "position": {
+                "top": 863,
+                "left": 35,
+                "width": 64,
+                "height": 284
+            }
+        },
+        {
+            "index": 4,
+            "name": "function_004",
+            "position": {
+                "top": 1241,
+                "left": 51,
+                "width": 48,
+                "height": 278
+            }
+        },
+        {
+            "index": 5,
+            "name": "function_005",
+            "position": {
+                "top": 1621,
+                "left": 43,
+                "width": 50,
+                "height": 236
+            }
+        },
+        {
+            "index": 6,
+            "name": "function_006",
+            "position": {
+                "top": 1947,
+                "left": 37,
+                "width": 58,
+                "height": 268
+            }
+        }
+    ],
+    "item_layer": "functions"
+}

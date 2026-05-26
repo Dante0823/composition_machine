@@ -1,0 +1,91 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "staffs",
+        "path": "staffs/page_002/staff_004.jpg"
+    },
+    "items": [
+        {
+            "index": 1,
+            "name": "measure_001",
+            "position": {
+                "top": 0,
+                "left": 1130,
+                "width": 411,
+                "height": 172
+            }
+        },
+        {
+            "index": 2,
+            "name": "measure_002",
+            "position": {
+                "top": 7,
+                "left": 495,
+                "width": 285,
+                "height": 256
+            }
+        },
+        {
+            "index": 3,
+            "name": "measure_003",
+            "position": {
+                "top": 7,
+                "left": 784,
+                "width": 345,
+                "height": 169
+            }
+        },
+        {
+            "index": 4,
+            "name": "measure_004",
+            "position": {
+                "top": 22,
+                "left": 187,
+                "width": 300,
+                "height": 250
+            }
+        },
+        {
+            "index": 5,
+            "name": "measure_005",
+            "position": {
+                "top": 206,
+                "left": 1139,
+                "width": 403,
+                "height": 157
+            }
+        },
+        {
+            "index": 6,
+            "name": "measure_006",
+            "position": {
+                "top": 213,
+                "left": 784,
+                "width": 343,
+                "height": 151
+            }
+        },
+        {
+            "index": 7,
+            "name": "measure_007",
+            "position": {
+                "top": 216,
+                "left": 491,
+                "width": 290,
+                "height": 149
+            }
+        },
+        {
+            "index": 8,
+            "name": "measure_008",
+            "position": {
+                "top": 220,
+                "left": 182,
+                "width": 308,
+                "height": 145
+            }
+        }
+    ],
+    "item_layer": "measures"
+}

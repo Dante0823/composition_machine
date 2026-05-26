@@ -1,0 +1,9 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "notes",
+        "path": "notes/page_001/staff_002/measure_002/note_001.jpg"
+    },
+    "code": "[f3@8 b3@8 d4@8]"
+}

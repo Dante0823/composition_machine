@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "work": "sheet_music_01",
+    "source": {
+        "layer": "measures",
+        "path": "measures/page_003/staff_006/measure_011.jpg"
+    },
+    "items": [
+        {
+            "index": 1,
+            "name": "function_001",
+            "position": {
+                "top": 105,
+                "left": 22,
+                "width": 309,
+                "height": 28
+            }
+        }
+    ],
+    "item_layer": "functions"
+}
